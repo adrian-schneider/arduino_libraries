@@ -1,0 +1,30 @@
+#######################################
+# Syntax Coloring Map For
+# SerialLCD_BPP4X0
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SerialLCD_BPP4X0	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+clear		KEYWORD2
+write		KEYWORD2
+println		KEYWORD2
+cursorTo	KEYWORD2
+getSerial	KEYWORD2
+
+######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+HIDECSR		LITERAL1

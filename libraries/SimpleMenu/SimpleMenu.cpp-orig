@@ -1,0 +1,148 @@
+/*
+SimpleMenu.cpp
+TBD
+
+To use, include:
+  <SimpleMenu.h>
+
+Define SIMPLEMENU_DEBUG and initialize SoftwareSerial to enable default
+implementations of virtual functions.
+*/
+
+#include <Arduino.h>
+#ifdef SIMPLEMENU_DEBUG
+#include <SoftwareSerial.h>
+#endif
+#include "SimpleMenu.h"
+
+#define M_OUTSIDE 0x00
+#define M_ENTERING 0x01
+#define M_INSIDE 0x02
+#define M_EXITING 0x03
+#define M_MNUCHG 0x04
+#define M_SELCHG 0x05
+
+#define ME_NONE 0x00
+#define ME_BUTTON 0x01
+#define ME_ROTMVD 0x02
+#define ME_EXIT 0x03
+
+const unsigned char SimpleMenu::_menu_state[6][4] = {
+  // M_OUTSIDE
+  {M_OUTSIDE, M_ENTERING, M_OUTSIDE, M_OUTSIDE},
+  // M_ENTERING
+  {M_INSIDE, M_INSIDE, M_INSIDE, M_INSIDE},
+  // M_INSIDE
+  {M_INSIDE, M_SELCHG, M_MNUCHG, M_INSIDE},
+  // M_EXITING
+  {M_OUTSIDE, M_OUTSIDE, M_OUTSIDE, M_OUTSIDE},
+  // M_MNUCHG
+  {M_INSIDE, M_INSIDE, M_INSIDE, M_INSIDE},
+  // M_SELCHG
+  {M_ENTERING, M_ENTERING, M_ENTERING, M_EXITING}
+};
+
+SimpleMenu::SimpleMenu(const char ***menu_all, int *menuSel) :
+  _menu_all(menu_all),
+  _menuSel(menuSel),
+  _menu_i(0),
+  _menu(menu_all[_menu_i]),
+  _menuRet(0),
+  _menuItem(NULL),
+  _menu_st(M_OUTSIDE)
+{
+}
+
+void SimpleMenu::process(int moved, int button) {
+  // Rotation and button pushed considered mutually exclusive.  
+  unsigned char menu_ev = moved ? ME_ROTMVD :
+    button ? ME_BUTTON : ME_NONE;
+
+  if (_menu_st == M_ENTERING) {
+    _menu = _menu_all[_menu_i];
+    _menuRet = _menuSel[_menu_i];
+    showMenu();
+    showMenuItem(menuItemChr(_menu, _menuRet), true); 
+    waitEnteringExiting(true);
+  }
+  else if (_menu_st == M_INSIDE) {
+    _menuItem = selectMenu(_menu, moved, &_menuRet);
+  }
+  else if (_menu_st == M_MNUCHG) {
+    // Show current and mark selected item.
+    showMenuItem(_menuItem, _menuRet == _menuSel[_menu_i]);
+  }
+  else if (_menu_st == M_SELCHG) {
+    if (_menu_i == 0 && _menuRet == 0) {
+      menu_ev = ME_EXIT;
+    }
+    else {
+      _menuSel[_menu_i] = _menuRet;
+      showMenuItem(_menuItem, true);
+      // Briefly show selected item.     
+      delay(1000);
+      // If menu is top level, next menu is the selected menu.
+      // Otherwise, next menu is top level.
+      _menu_i = (_menu_i == 0 ? _menuRet : 0);
+    }
+  }
+  else if (_menu_st == M_EXITING) {
+    showSettings();
+    // Wait until select button is released to avoid automaitc cylcing.
+    waitEnteringExiting(false);
+  }
+  _menu_st = _menu_state[_menu_st][menu_ev];
+}
+
+const char* SimpleMenu::selectMenu(const char *menu[], int moved, int *menuRet) {
+  if (menu[0] == NULL) {
+    int from = ((SM_RangeDescr *)(menu[1]))->from;
+    int to   = ((SM_RangeDescr *)(menu[1]))->to;
+    int incr = ((SM_RangeDescr *)(menu[1]))->incr;
+    (*menuRet) += moved * incr;
+    if (*menuRet < from) *menuRet = from;
+    if (*menuRet > to)   *menuRet = to;
+    return itoa(*menuRet, _buf, 10);
+  }
+  else {
+    (*menuRet) += moved;
+    if (*menuRet < 0) *menuRet = 0;
+    if (menu[*menuRet] == NULL) (*menuRet)--;
+    return menu[*menuRet];
+  }
+}
+
+const char *SimpleMenu::menuItemChr(const char *menu[], int i) {
+  return (menu[0] == NULL) ? itoa(i, _buf, 10) : menu[i];
+}
+
+void SimpleMenu::showMenu() {
+  #ifdef SIMPLEMENU_DEBUG
+  Serial.println("Menu");
+  #endif 
+}
+
+void SimpleMenu::showMenuItem(const char *item, int sel) {
+  #ifdef SIMPLEMENU_DEBUG
+  Serial.write(item); 
+  if (sel) Serial.write('*');
+  Serial.println();
+  #endif 
+}
+
+void SimpleMenu::showSettings() {
+  #ifdef SIMPLEMENU_DEBUG
+  for (int i = 0; i < 4; i++) {
+    Serial.write(_menu_all[0][i]); Serial.write(": ");
+    _menu = _menu_all[i];
+    Serial.println(menuItemChr(_menu, _menuSel[i]));
+  }
+  #endif 
+}
+
+void SimpleMenu::waitEnteringExiting(int entering) {
+  #ifdef SIMPLEMENU_DEBUG
+  delay(1000);
+  #endif 
+}
+

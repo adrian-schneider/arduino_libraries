@@ -1,0 +1,52 @@
+#######################################
+# Syntax Coloring Map For
+# SerialLCD_BPP4X0
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SerialLCD_TRM425	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+clear		KEYWORD2
+write		KEYWORD2
+println		KEYWORD2
+cursorTo	KEYWORD2
+rightAlign	KEYWORD2
+defineCC	KEYWORD2
+restoreCC	KEYWORD2
+getSerial	KEYWORD2
+
+######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+HOME		LITERAL1
+STARTBIG	LITERAL1
+ENDBIG		LITERAL1
+HIDECSR		LITERAL1
+ULCSR		LITERAL1
+BLKCSR		LITERAL1
+BELL		LITERAL1
+BSP		LITERAL1
+HT		LITERAL1
+LF		LITERAL1
+VT		LITERAL1
+FF		LITERAL1
+CR		LITERAL1
+BLON		LITERAL1
+BLOFF		LITERAL1
+POSCSR		LITERAL1
+CLRCOL		LITERAL1
+RALIGN		LITERAL1
+ESC		LITERAL1
+

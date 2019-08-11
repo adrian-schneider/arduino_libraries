@@ -1,0 +1,45 @@
+/*
+SimpleMenu.h
+TBD
+
+To use, include:
+  <SimpleMenu.h>
+*/
+#ifndef SimpleMenu_h
+#define SimpleMenu_h
+
+typedef struct {
+  int from, to, incr;
+} SM_RangeDescr;
+
+class SimpleMenu
+{
+  public:
+    SimpleMenu(const char ***menu_all, int *menuSel);
+
+    const char* menuItemChr(const char *menu[], int i);
+    void process(int moved, int button);
+
+  protected:
+    virtual void showMenu();
+    virtual void showMenuItem(const char *item, int sel);
+    virtual void showSettings();
+    virtual void waitEnteringExiting(int entering);
+
+  private:
+    const char* selectMenu(const char *menu[], int moved, int *menuRet);
+  
+    static const unsigned char _menu_state[6][4];
+ 
+    char _menu_mark;
+    char _buf[7];
+    int *_menuSel;
+    const char ***_menu_all;
+    int _menu_i;
+    const char **_menu;
+    int _menuRet;
+    const char *_menuItem;
+    unsigned char _menu_st;
+};
+
+#endif // SimpleMenu_h
