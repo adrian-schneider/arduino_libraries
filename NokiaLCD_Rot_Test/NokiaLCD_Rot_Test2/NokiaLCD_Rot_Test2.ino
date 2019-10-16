@@ -127,6 +127,8 @@ MySimpleMenu menu((const char ***)menu_all, (int *)menuSel);
 
 void setup()   {
   display.begin();
+  // Use the next line if the display is mounted upside-down.
+  display.setRotation(2);
 
   // Push button pin with pullup.
   pinMode(rot_pb_pin, INPUT);   
